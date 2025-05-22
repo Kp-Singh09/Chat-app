@@ -1,89 +1,98 @@
-const socket=io();
+const socket = io();
 
-const ClientsTotal=document.getElementById('client-total');
+const ClientsTotal = document.getElementById('client-total');
+const messageContainer = document.getElementById('message-container');
+const nameInput = document.getElementById('name-input');
+const messageForm = document.getElementById('message-form');
+const messageInput = document.getElementById('message-input');
+const messageTone = new Audio('iphone_text_message.mp3');
 
-const messageContainer=document.getElementById('message-container');
-const nameInput=document.getElementById('name-input');
-const messageForm=document.getElementById('message-form');
-const messageInput=document.getElementById('message-input');
-const messageTone=new Audio('iphone_text_message.mp3');
-// const messageSendTone=new Audio('iphone_send_sms.mp3');
+// ✅ Load username from localStorage on page load
+window.addEventListener('DOMContentLoaded', () => {
+  const savedName = localStorage.getItem('username');
+  if (savedName) {
+    nameInput.value = savedName;
+  }
+  socket.emit('join', nameInput.value || 'anonymous');
+});
+
+// ✅ Save username to localStorage on input change
+nameInput.addEventListener('input', () => {
+  localStorage.setItem('username', nameInput.value);
+});
+
 messageForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    sendMessage()
-})
-socket.on('clients-total', (data) => {
-    ClientsTotal.innerText=`Total clients ${data}`;
-})
+  e.preventDefault();
+  sendMessage();
+});
 
-function sendMessage(){
-    if(messageInput.value==='')return 
-    // console.log(messageInput.value);
-    console.log("send message playing....");
-    // messageSendTone.play();
-    const data={
-        name:nameInput.value,
-        message:messageInput.value,
-        dateTime:new Date()
-    }
-    socket.emit('message', data);
-    addMessage(true,data);
-    messageInput.value="";
+function sendMessage() {
+  if (messageInput.value.trim() === '') return;
+
+  const data = {
+    name: nameInput.value,
+    message: messageInput.value,
+    dateTime: new Date()
+  };
+
+  socket.emit('message', data);
+  addMessage(true, data);
+  messageInput.value = '';
 }
 
+socket.on('clients-total', (data) => {
+  ClientsTotal.innerText = `Total clients: ${data}`;
+});
 
 socket.on('chat-message', (data) => {
-    messageTone.play();
-    // console.log(data);
-    addMessage(false,data);
-    // appendMessage(`${data.name}: ${data.message}`);
-})
-
-function addMessage(isOwnmsg,data){
-    clearFeedbackmsg();
-        const element=`<li class="${isOwnmsg ? "message-right" : "message-left"}">
-        <p class="message">${data.message}
-            <span>${data.name}⚫️ ${moment(data.dateTime).fromNow()} </span>
-            </span>
-        </p>
-    </li>`
-    messageContainer.innerHTML+=element;
-    scrolltoBottom();
-}
-
-
-function scrolltoBottom(){
-    messageContainer.scrollTo(0, messageContainer.scrollHeight);
-}
-
-messageInput.addEventListener('focus', (e) => {
-    socket.emit('feedback', {
-        feedback: `✍🏻${nameInput.value} is typing a message`
-    })
-})
-messageInput.addEventListener('keypress', (e) => {
-    socket.emit('feedback', {
-        feedback: `✍🏻${nameInput.value} is typing a message`
-    })
-})
-messageInput.addEventListener('blur', (e) => {
-    socket.emit('feedback', {
-        feedback: ''
-    })
-})
+  messageTone.play();
+  addMessage(false, data);
+});
 
 socket.on('feedback', (data) => {
-    clearFeedbackmsg();
-    const element=`<li class="message-feedback">
-                <p class="feedback" id="feedback">${data.feedback}
-                 </p>   
-                </li>`
-messageContainer.innerHTML+=element;
-    
-})
+  clearFeedbackmsg();
+  const element = document.createElement('li');
+  element.classList.add('message-feedback');
+  element.innerHTML = `<p class="feedback" id="feedback">${data.feedback}</p>`;
+  messageContainer.appendChild(element);
+  scrolltoBottom();
+});
 
-function clearFeedbackmsg(){
-    document.querySelectorAll('li.message-feedback').forEach(element => {
-        element.parentNode.removeChild(element);
-    });
+socket.on('user-activity', (msg) => {
+  const el = document.createElement('li');
+  el.classList.add('user-activity');
+  el.innerText = msg;
+  messageContainer.appendChild(el);
+  scrolltoBottom();
+});
+
+messageInput.addEventListener('focus', () => {
+  socket.emit('feedback', { feedback: `✍🏻 ${nameInput.value} is typing...` });
+});
+messageInput.addEventListener('blur', () => {
+  socket.emit('feedback', { feedback: '' });
+});
+
+// ✅ Render messages without avatar
+function addMessage(isOwn, data) {
+  clearFeedbackmsg();
+  const li = document.createElement('li');
+  li.className = isOwn ? 'message-right' : 'message-left';
+
+  const msg = `<div class="bubble">
+      <p class="message">${data.message}</p>
+      <span>${data.name} ⚫️ ${moment(data.dateTime).fromNow()}</span>
+    </div>`;
+
+  li.innerHTML = msg;
+  messageContainer.appendChild(li);
+  scrolltoBottom();
+}
+
+function scrolltoBottom() {
+  messageContainer.scrollTo(0, messageContainer.scrollHeight);
+}
+
+function clearFeedbackmsg() {
+  document.querySelectorAll('li.message-feedback').forEach(el => el.remove());
 }
