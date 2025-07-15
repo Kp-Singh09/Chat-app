@@ -15,14 +15,15 @@ const fileInput = document.getElementById('fileInput');
 window.addEventListener('DOMContentLoaded', () => {
   const savedName = localStorage.getItem('username');
 
-  // If saved name exists, show it, otherwise show hint
   if (savedName) {
+    // If user already saved a name → show & join
     nameInput.value = savedName;
+    socket.emit('join', savedName);
   } else {
+    // Show hint in input, but join as plain "anonymous"
     nameInput.value = "anonymous (click to change)";
+    socket.emit('join', "anonymous");
   }
-
-  socket.emit('join', nameInput.value || 'Anonymous');
 
   // ✅ Update placeholder sample times to current time
   document.querySelectorAll('#message-container .message span').forEach(span => {
@@ -31,7 +32,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ✅ When user focuses on name, clear the hint
+// ✅ When user focuses on name → clear hint
 nameInput.addEventListener('focus', () => {
   if (nameInput.value === "anonymous (click to change)") {
     nameInput.value = "";
@@ -40,12 +41,15 @@ nameInput.addEventListener('focus', () => {
 
 // ✅ When user leaves the name box
 nameInput.addEventListener('blur', () => {
-  if (nameInput.value.trim() === "") {
-    // If empty, restore hint
+  if (nameInput.value.trim() === "" || nameInput.value === "anonymous (click to change)") {
+    // If empty, revert back to hint (but don't trigger another join)
     nameInput.value = "anonymous (click to change)";
   } else {
     // Save the chosen name
     localStorage.setItem('username', nameInput.value);
+
+    // ✅ Emit join again with updated name
+    socket.emit('join', nameInput.value);
   }
 });
 
