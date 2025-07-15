@@ -7,30 +7,55 @@ const messageForm = document.getElementById('message-form');
 const messageInput = document.getElementById('message-input');
 const messageTone = new Audio('iphone_text_message.mp3');
 
-// ✅ Load username from localStorage on page load
+// ✅ File upload elements
+const fileBtn = document.getElementById('fileBtn');
+const fileInput = document.getElementById('fileInput');
+
+// ✅ When the app loads
 window.addEventListener('DOMContentLoaded', () => {
   const savedName = localStorage.getItem('username');
+
+  // If saved name exists, show it, otherwise show hint
   if (savedName) {
     nameInput.value = savedName;
+  } else {
+    nameInput.value = "anonymous (click to change)";
   }
-  socket.emit('join', nameInput.value || 'anonymous');
+
+  socket.emit('join', nameInput.value || 'Anonymous');
+
+  // ✅ Update placeholder sample times to current time
+  document.querySelectorAll('#message-container .message span').forEach(span => {
+    const now = moment().format('h:mm A');
+    span.textContent = `${now} ⚫️ Today`;
+  });
 });
 
-// ✅ Save username to localStorage on input change
-nameInput.addEventListener('input', () => {
-  localStorage.setItem('username', nameInput.value);
+// ✅ When user focuses on name, clear the hint
+nameInput.addEventListener('focus', () => {
+  if (nameInput.value === "anonymous (click to change)") {
+    nameInput.value = "";
+  }
 });
 
+// ✅ When user leaves the name box
+nameInput.addEventListener('blur', () => {
+  if (nameInput.value.trim() === "") {
+    // If empty, restore hint
+    nameInput.value = "anonymous (click to change)";
+  } else {
+    // Save the chosen name
+    localStorage.setItem('username', nameInput.value);
+  }
+});
+
+// ✅ Send normal text message
 messageForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  sendMessage();
-});
-
-function sendMessage() {
   if (messageInput.value.trim() === '') return;
 
   const data = {
-    name: nameInput.value,
+    name: nameInput.value || 'Anonymous',
     message: messageInput.value,
     dateTime: new Date()
   };
@@ -38,44 +63,21 @@ function sendMessage() {
   socket.emit('message', data);
   addMessage(true, data);
   messageInput.value = '';
-}
+});
 
+// ✅ Show total clients
 socket.on('clients-total', (data) => {
   ClientsTotal.innerText = `Total clients: ${data}`;
 });
 
+// ✅ Receive text message
 socket.on('chat-message', (data) => {
   messageTone.play();
   addMessage(false, data);
 });
 
-socket.on('feedback', (data) => {
-  clearFeedbackmsg();
-  const element = document.createElement('li');
-  element.classList.add('message-feedback');
-  element.innerHTML = `<p class="feedback" id="feedback">${data.feedback}</p>`;
-  messageContainer.appendChild(element);
-  scrolltoBottom();
-});
-
-socket.on('user-activity', (msg) => {
-  const el = document.createElement('li');
-  el.classList.add('user-activity');
-  el.innerText = msg;
-  messageContainer.appendChild(el);
-  scrolltoBottom();
-});
-
-messageInput.addEventListener('focus', () => {
-  socket.emit('feedback', { feedback: `✍🏻 ${nameInput.value} is typing...` });
-});
-messageInput.addEventListener('blur', () => {
-  socket.emit('feedback', { feedback: '' });
-});
-
-// ✅ Render messages without avatar
+// ✅ Show a text message
 function addMessage(isOwn, data) {
-  clearFeedbackmsg();
   const li = document.createElement('li');
   li.className = isOwn ? 'message-right' : 'message-left';
 
@@ -86,13 +88,62 @@ function addMessage(isOwn, data) {
 
   li.innerHTML = msg;
   messageContainer.appendChild(li);
-  scrolltoBottom();
+  scrollToBottom();
 }
 
-function scrolltoBottom() {
+// ✅ Scroll helper
+function scrollToBottom() {
   messageContainer.scrollTo(0, messageContainer.scrollHeight);
 }
 
-function clearFeedbackmsg() {
-  document.querySelectorAll('li.message-feedback').forEach(el => el.remove());
+// ✅ ====== FILE UPLOAD FEATURE ======
+
+// Open file picker when 📎 clicked
+fileBtn.addEventListener('click', () => fileInput.click());
+
+// When file selected
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function () {
+    const fileData = {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      data: reader.result, // Base64 encoded file
+      sender: nameInput.value || 'Anonymous',
+      dateTime: new Date()
+    };
+
+    // Send to server
+    socket.emit('file-upload', fileData);
+
+    // Show file in sender chat
+    showFileMessage(true, fileData);
+  };
+  reader.readAsDataURL(file);
+});
+
+// Show file in chat (downloadable link)
+function showFileMessage(isOwn, fileData) {
+  const li = document.createElement('li');
+  li.className = isOwn ? 'message-right' : 'message-left';
+
+  const fileLink = `<a href="${fileData.data}" download="${fileData.name}" target="_blank">📄 ${fileData.name}</a>`;
+
+  li.innerHTML = `
+    <div class="bubble">
+      <p class="message">${fileLink}</p>
+      <span>${fileData.sender} ⚫️ ${moment(fileData.dateTime).fromNow()}</span>
+    </div>
+  `;
+  messageContainer.appendChild(li);
+  scrollToBottom();
 }
+
+// ✅ Receive file from others
+socket.on('file-receive', (fileData) => {
+  showFileMessage(false, fileData);
+});

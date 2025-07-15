@@ -8,21 +8,33 @@
   <script src="https://kit.fontawesome.com/ff53e12c48.js" crossorigin="anonymous"></script>
 </head>
 <body>
+  <!-- Theme toggle -->
   <div class="theme-toggle">
     <button id="theme-button">
       <i class="fas fa-moon" id="theme-icon"></i>
     </button>
   </div>
 
+  <!-- App title -->
   <h1 class="title">Chit Chat</h1>
 
+  <!-- Chat container -->
   <div class="main">
+    <!-- Username with hint -->
     <div class="name">
       <span><i class="fas fa-user-friends"></i></span>
-      <input type="text" id="name-input" class="name-input" value="anonymous" maxlength="20" />
+      <input 
+        type="text" 
+        id="name-input" 
+        class="name-input" 
+        value="anonymous (click to change)" 
+        maxlength="20"
+      />
     </div>
 
+    <!-- ✅ Message list with default placeholders -->
     <ul class="message-container" id="message-container">
+      <!-- Default placeholder messages -->
       <li class="message-left">
         <p class="message">
           Hello
@@ -40,77 +52,87 @@
       </li>
     </ul>
 
+    <!-- ✅ FILE + MESSAGE FORM -->
     <form class="message-form" id="message-form">
-      <input type="text" class="message-input" id="message-input" placeholder="Type something here..." />
-      <div class="v-divider"></div>
-      <button type="submit" class="send-button">Send</button>
+      <!-- Hidden file input -->
+      <input type="file" id="fileInput" style="display:none;" />
+
+      <!-- Message text -->
+      <input type="text" class="message-input" id="message-input" placeholder="Type a message..." />
+
+      <!-- File attach button -->
+      <button type="button" id="fileBtn"><i class="fas fa-paperclip"></i></button>
+
+      <!-- Send message -->
+      <button type="submit" class="send-button"><i class="fas fa-paper-plane"></i></button>
     </form>
   </div>
 
-  <h3 class="clients-total" id="client-total">Total clients: 2</h3>
+  <!-- Client count -->
+  <h3 class="clients-total" id="client-total">Total clients: 0</h3>
+
+  <!-- Footer with social links -->
   <footer style="text-align: center; padding: 1rem; margin-top: auto; border-top: 1px solid #333;">
-  <div style="max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; color: #ccc;">
+    <div style="max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; color: #ccc;">
 
-    <div style="flex: 1; text-align: left;">
-      <p>Made by <strong>Karanpreet Singh</strong></p>
+      <div style="flex: 1; text-align: left;">
+        <p>Made by <strong>Karanpreet Singh</strong></p>
+      </div>
+
+      <div style="flex: 1; text-align: right; display: flex; justify-content: flex-end; gap: 16px;">
+        <!-- GitHub -->
+        <a href="https://github.com/Kp-Singh09" target="_blank" title="GitHub" style="color: inherit;">
+          <svg height="28" viewBox="0 0 16 16" width="28" xmlns="http://www.w3.org/2000/svg" fill="#ccc">
+            <path fill-rule="evenodd"
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 
+                6.53 5.47 7.59.4.07.55-.17.55-.38
+                0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49
+                -2.69-.94-.09-.23-.48-.94-.82-1.13-.28
+                -.15-.68-.52-.01-.53.63-.01 1.08.58
+                1.23.82.72 1.21 1.87.87 2.33.66.07
+                -.52.28-.87.51-1.07-1.78-.2-3.64-.89
+                -3.64-3.95 0-.87.31-1.59.82-2.15
+                -.08-.2-.36-1.02.08-2.12 0 0 .67
+                -.21 2.2.82.64-.18 1.32-.27 2
+                -.27s1.36.09 2 .27c1.53-1.04
+                2.2-.82 2.2-.82.44 1.1.16 1.92.08
+                2.12.51.56.82 1.27.82 2.15 0
+                3.07-1.87 3.75-3.65 3.95.29.25.54.73.54
+                1.48 0 1.07-.01 1.93-.01 2.2 0
+                .21.15.46.55.38A8.013 8.013 0 0016 8c0
+                -4.42-3.58-8-8-8z" />
+          </svg>
+        </a>
+
+        <!-- LinkedIn -->
+        <a href="https://www.linkedin.com/in/kp-singh-/" target="_blank" title="LinkedIn" style="color: inherit;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#ccc">
+            <path
+              d="M20.447 20.452H17.21v-5.569c0-1.328-.027-3.039-1.849-3.039-1.851 
+                0-2.134 1.445-2.134 2.939v5.669H9.001V9h3.112v1.561h.045c.434-.824 
+                1.494-1.694 3.074-1.694 3.287 0 3.894 2.164 3.894 4.978v6.607zM5.337 
+                7.433c-1.004 0-1.815-.812-1.815-1.815 0-1.004.812-1.816 
+                1.815-1.816s1.815.812 
+                1.815 1.816c0 1.003-.812 1.815-1.815 
+                1.815zM6.814 20.452H3.861V9h2.953v11.452zM22.225 
+                0H1.771C.792 0 0 
+                .771 0 1.723v20.549C0 23.229.792 
+                24 1.771 24h20.451C23.2 24 24 
+                23.229 24 22.271V1.723C24 
+                .771 23.2 0 22.222 0h.003z" />
+          </svg>
+        </a>
+      </div>
     </div>
-
-    <div style="flex: 1; text-align: right; display: flex; justify-content: flex-end; gap: 16px;">
-      <!-- GitHub -->
-      <a href="https://github.com/Kp-Singh09" target="_blank" title="GitHub" style="color: inherit;">
-        <svg height="28" viewBox="0 0 16 16" width="28" xmlns="http://www.w3.org/2000/svg" fill="#ccc">
-          <path fill-rule="evenodd"
-            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 
-              6.53 5.47 7.59.4.07.55-.17.55-.38
-              0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49
-              -2.69-.94-.09-.23-.48-.94-.82-1.13-.28
-              -.15-.68-.52-.01-.53.63-.01 1.08.58
-              1.23.82.72 1.21 1.87.87 2.33.66.07
-              -.52.28-.87.51-1.07-1.78-.2-3.64-.89
-              -3.64-3.95 0-.87.31-1.59.82-2.15
-              -.08-.2-.36-1.02.08-2.12 0 0 .67
-              -.21 2.2.82.64-.18 1.32-.27 2
-              -.27s1.36.09 2 .27c1.53-1.04
-              2.2-.82 2.2-.82.44 1.1.16 1.92.08
-              2.12.51.56.82 1.27.82 2.15 0
-              3.07-1.87 3.75-3.65 3.95.29.25.54.73.54
-              1.48 0 1.07-.01 1.93-.01 2.2 0
-              .21.15.46.55.38A8.013 8.013 0 0016 8c0
-              -4.42-3.58-8-8-8z" />
-        </svg>
-      </a>
-
-      <!-- LinkedIn -->
-      <a href="https://www.linkedin.com/in/kp-singh-/" target="_blank" title="LinkedIn" style="color: inherit;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#ccc">
-          <path
-            d="M20.447 20.452H17.21v-5.569c0-1.328-.027-3.039-1.849-3.039-1.851 
-              0-2.134 1.445-2.134 2.939v5.669H9.001V9h3.112v1.561h.045c.434-.824 
-              1.494-1.694 3.074-1.694 3.287 0 3.894 2.164 3.894 4.978v6.607zM5.337 
-              7.433c-1.004 0-1.815-.812-1.815-1.815 0-1.004.812-1.816 
-              1.815-1.816s1.815.812 
-              1.815 1.816c0 1.003-.812 1.815-1.815 
-              1.815zM6.814 20.452H3.861V9h2.953v11.452zM22.225 
-              0H1.771C.792 0 0 
-              .771 0 1.723v20.549C0 23.229.792 
-              24 1.771 24h20.451C23.2 24 24 
-              23.229 24 22.271V1.723C24 
-              .771 23.2 0 22.222 0h.003z" />
-        </svg>
-      </a>
-    </div>
-
-  </div>
-</footer>
+  </footer>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.28.0/moment.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.28.0/moment.min.js"></script>
   <script src="main.js"></script>
   <script>
-    // Theme Toggle Script
+    // Theme toggle
     const themeButton = document.getElementById('theme-button');
     const icon = document.getElementById('theme-icon');
-
     themeButton.addEventListener('click', () => {
       document.body.classList.toggle('light-mode');
       icon.classList.toggle('fa-moon');
